@@ -15,5 +15,10 @@
     "bugs": {
         "url": "https://github.com/mrumengan/fs_watcher/issues"
     },
-    "homepage": "https://github.com/mrumengan/fs_watcher#readme"
+    "homepage": "https://github.com/mrumengan/fs_watcher#readme",
+    "dependencies": {
+        "chokidar": "^3.5.3",
+        "debug": "^4.3.4",
+        "mysql2": "^3.6.0"
+    }
 }
