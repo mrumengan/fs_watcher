@@ -18,13 +18,12 @@ const watcher = chokidar.watch(config.watchFolder, {
   ignoreInitial: false,
 });
 
-watcher
-  .on('add', (path, stats) => recordNewFile(path, stats))
-  .on('unlink', path => debug(`File ${path} has been removed`));
+watcher.on('add', (path, stats) => recordNewFile(path, stats))
 
-watcher.on('change', (path, stats) => {
-  if (stats) debug(`File ${path} changed size to ${stats.size}`);
-});
+watcher.on('change', (path, stats) => updateUploadedFile(path, stats))
+
+watcher.on('unlink', (path, stats) => removeUploadedFile(path, stats))
+
 
 recordNewFile = async function (path, stats) {
   var path = path.replace(config.watchFolder + '/', '')
@@ -33,21 +32,58 @@ recordNewFile = async function (path, stats) {
   // debug(stats)
 
   let unixTime = Math.floor(Date.now() / 1000)
-  params = [path, stats.size, unixTime, unixTime]
 
-  qFind = 'SELECT id FROM ' + tblUploadedFile + ' WHERE file_name = ?'
+  qFind = 'SELECT id, file_name FROM ' + tblUploadedFile + ' WHERE file_name = ?'
   params = [path]
   qr = await mysql.query(qFind, params);
-  debug(qr[0].id)
 
-  if (qr[0].id) {
-    debug('exist: ', qr.id)
+  if (qr[0] && qr[0].id) {
+    debug('exist: ', qr[0].file_name)
   } else {
+    params = [path, stats.size, unixTime, unixTime]
     qInsert = 'INSERT INTO ' + tblUploadedFile + ' VALUES (NULL, ?, ?, ?, ?) ';
     qr = await mysql.query(qInsert, params);
   }
 }
 
 updateUploadedFile = async function (path, stats) {
+  var path = path.replace(config.watchFolder + '/', '')
+
+  debug(`Update: ${path}`)
+  // debug(stats)
+
+  let unixTime = Math.floor(Date.now() / 1000)
+
+  qFind = 'SELECT id FROM ' + tblUploadedFile + ' WHERE file_name = ?'
+  params = [path]
+  qr = await mysql.query(qFind, params);
+
+  if (qr[0].id) {
+    params = [stats.size, unixTime, path]
+    qUpdate = 'UPDATE ' + tblUploadedFile + ' SET file_size = ?, updated_at = ? WHERE file_name = ?';
+    qr = await mysql.query(qUpdate, params);
+  } else {
+    debug('not exist: ', qr.id)
+  }
+
+}
+
+removeUploadedFile = async function (path, stats) {
+  var path = path.replace(config.watchFolder + '/', '')
+
+  debug(`Delete: ${path}`)
+  // debug(stats)
+
+  qFind = 'SELECT id FROM ' + tblUploadedFile + ' WHERE file_name = ?'
+  params = [path]
+  qr = await mysql.query(qFind, params)
+
+  if (qr[0].id) {
+    params = [path]
+    qRemove = 'DELETE FROM ' + tblUploadedFile + ' WHERE file_name = ? ';
+    qr = await mysql.query(qRemove, params);
+  } else {
+    debug('not exist: ', qr.id)
+  }
 
 }

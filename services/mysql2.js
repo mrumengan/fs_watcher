@@ -10,7 +10,7 @@ async function query(sql, params) {
   try {
     // debug('Params: ', params);
     const _q = pool.format(sql, params);
-    // debug(_q);
+    debug(_q);
     results = await pool.query(sql, params, (err, rows) => {
       return rows;
     });
