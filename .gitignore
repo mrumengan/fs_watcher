@@ -130,6 +130,5 @@ dist
 .yarn/install-state.gz
 .pnp.*
 
-# uploads folder
-uploads/*
+# config folder
 config/*.json

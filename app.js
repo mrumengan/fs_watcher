@@ -3,9 +3,17 @@ const debug = require('debug')('fs_watcher:app')
 const chokidar = require('chokidar')
 const mysql = require('./services/mysql2');
 
-// debug('Config: ', config)
-
 const tblUploadedFile = config.tables.uploadedFile
+
+// const { initializeApp } = require('firebase-admin/app');
+// const app = initializeApp();
+const admin = require("firebase-admin");
+const serviceAccount = require("../serviceAccountKey.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://smart-display-398.firebaseio.com"
+});
+
 
 const watcher = chokidar.watch(config.watchFolder, {
   ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -87,3 +95,27 @@ removeUploadedFile = async function (path, stats) {
   }
 
 }
+
+sendNotification = async function (registrationToken, msg) {
+
+  const message = {
+    data: {
+      score: '850',
+      time: '2:45'
+    },
+    token: registrationToken
+  };
+
+  // Send a message to the device corresponding to the provided
+  // registration token.
+  admin.messaging().send(message)
+    .then((response) => {
+      // Response is a message ID string.
+      console.log('Successfully sent message:', response);
+    })
+    .catch((error) => {
+      console.log('Error sending message:', error);
+    });
+}
+
+sendNotification('TEST', 'Pesan')
