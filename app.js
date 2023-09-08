@@ -4,9 +4,17 @@ const chokidar = require('chokidar')
 const mysql = require('./services/mysql2');
 const axios = require('axios');
 
-// debug('Config: ', config)
-
 const tblUploadedFile = config.tables.uploadedFile
+
+// const { initializeApp } = require('firebase-admin/app');
+// const app = initializeApp();
+const admin = require("firebase-admin");
+const serviceAccount = require("../serviceAccountKey.json");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://smart-display-398.firebaseio.com"
+});
+
 
 const watcher = chokidar.watch(config.watchFolder, {
   ignored: /(^|[\/\\])\../, // ignore dotfiles

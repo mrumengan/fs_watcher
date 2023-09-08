@@ -1,4 +1,4 @@
-const debug = require('debug')('fs_watcher:services.mysl2')
+const debug = require('debug')('fs_watcher:services.mysql2')
 const config = require('../config/mysql2.json');
 const mysql = require('mysql2/promise');
 
