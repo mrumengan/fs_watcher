@@ -24,7 +24,7 @@ const watcher = chokidar.watch(config.watchFolder, {
     pollInterval: 1000,
     alwaysStat: true,
   },
-  ignoreInitial: false,
+  ignoreInitial: true,
 });
 
 watcher.on('add', (path, stats) => recordNewFile(path, stats))
