@@ -8,13 +8,14 @@ const tblUploadedFile = config.tables.uploadedFile
 
 // const { initializeApp } = require('firebase-admin/app');
 // const app = initializeApp();
-const admin = require("firebase-admin");
-const serviceAccount = require("../serviceAccountKey.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://smart-display-398.firebaseio.com"
-});
+// const admin = require("firebase-admin");
+// const serviceAccount = require("../serviceAccountKey.json");
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: "https://smart-display-398.firebaseio.com"
+// });
 
+debug('Watching: ' + config.watchFolder)
 
 const watcher = chokidar.watch(config.watchFolder, {
   ignored: /(^|[\/\\])\../, // ignore dotfiles
@@ -24,43 +25,41 @@ const watcher = chokidar.watch(config.watchFolder, {
     pollInterval: 1000,
     alwaysStat: true,
   },
-  ignoreInitial: true,
+  ignoreInitial: false,
 });
 
 watcher.on('add', (path, stats) => recordNewFile(path, stats))
 
-watcher.on('change', (path, stats) => updateUploadedFile(path, stats))
+// watcher.on('change', (path, stats) => updateUploadedFile(path, stats))
 
 watcher.on('unlink', (path, stats) => removeUploadedFile(path, stats))
 
 
 recordNewFile = async function (path, stats) {
-  var path = path.replace(config.watchFolder + '/', '')
+  var fileName = path.replace(config.watchFolder + '/', '')
+  var fileUrl = config.urlPrefix + '/' + fileName
 
-  debug(`Added: ${path}`)
+  debug(`Added: ${fileName} ${fileUrl}`)
   // debug(stats)
 
   let unixTime = Math.floor(Date.now() / 1000)
 
-  qFind = 'SELECT id, file_name FROM ' + tblUploadedFile + ' WHERE file_name = ?'
-  params = [path]
+  qFind = 'SELECT id, url FROM ' + tblUploadedFile + ' WHERE url = ?'
+  params = [fileUrl]
   qr = await mysql.query(qFind, params);
 
   if (qr[0] && qr[0].id) {
-    debug('exist: ', qr[0].file_name)
-    // sendPushNotif({
-    //   fileName: path,
-    //   fileSize: stats.size
-    // })
+    debug('exist: ', qr[0].url)
   } else {
-    params = [path, stats.size, unixTime, unixTime]
-    qInsert = 'INSERT INTO ' + tblUploadedFile + ' VALUES (NULL, ?, ?, ?, ?) ';
+    debug('new file: ')
+    params = [1, fileName, fileUrl, unixTime, unixTime]
+    qInsert = 'INSERT INTO ' + tblUploadedFile + ' (tv_show_channel_id, file_name, url, created_at, updated_at) VALUES (?, ?, ?, ?, ?) ';
     qr = await mysql.query(qInsert, params);
     let body = {
       fileName: path,
       fileSize: stats.size
     }
-    sendPushNotif(body)
+    // sendPushNotif(body)
   }
 }
 
@@ -87,18 +86,19 @@ updateUploadedFile = async function (path, stats) {
 }
 
 removeUploadedFile = async function (path, stats) {
-  var path = path.replace(config.watchFolder + '/', '')
+  let fileName = path.replace(config.watchFolder + '/', '')
+  var fileUrl = config.urlPrefix + '/' + fileName
 
   debug(`Delete: ${path}`)
   // debug(stats)
 
-  qFind = 'SELECT id FROM ' + tblUploadedFile + ' WHERE file_name = ?'
-  params = [path]
+  qFind = 'SELECT id FROM ' + tblUploadedFile + ' WHERE url = ?'
+  params = [fileUrl]
   qr = await mysql.query(qFind, params)
 
   if (qr[0].id) {
-    params = [path]
-    qRemove = 'DELETE FROM ' + tblUploadedFile + ' WHERE file_name = ? ';
+    params = [fileUrl]
+    qRemove = 'DELETE FROM ' + tblUploadedFile + ' WHERE url = ? ';
     qr = await mysql.query(qRemove, params);
   } else {
     debug('not exist: ', qr.id)
@@ -143,8 +143,8 @@ let tokens = [
 
 sendPushNotif = async function (message) {
   debug(message)
-  tokens.forEach(token => {
-    sendPushNotifTo(token, message)
-  })
+  // tokens.forEach(token => {
+  //   sendPushNotifTo(token, message)
+  // })
 }
 
