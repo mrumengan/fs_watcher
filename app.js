@@ -8,12 +8,12 @@ const tblUploadedFile = config.tables.uploadedFile
 
 // const { initializeApp } = require('firebase-admin/app');
 // const app = initializeApp();
-const admin = require("firebase-admin");
-const serviceAccount = require("../serviceAccountKey.json");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://smart-display-398.firebaseio.com"
-});
+//const admin = require("firebase-admin");
+//const serviceAccount = require("../serviceAccountKey.json");
+//admin.initializeApp({
+//  credential: admin.credential.cert(serviceAccount),
+//  databaseURL: "https://smart-display-398.firebaseio.com"
+//});
 
 
 const watcher = chokidar.watch(config.watchFolder, {
@@ -122,6 +122,7 @@ sendPushNotifTo = async function (fcmToken, message) {
   debug('Sending to: ' + fcmToken)
   http.post('https://fcm.googleapis.com/fcm/send', {
     to: fcmToken,
+    priority: 'high',
     notification: {
       title: 'New file update!',
       body: message
@@ -138,7 +139,10 @@ sendPushNotifTo = async function (fcmToken, message) {
 
 let tokens = [
   'c9uyim3PTTyPC7FM-Eu3P4:APA91bHRBUDXua3UTeqZq8AiIVO2I-aPGIl0VnzSJY-j_Yft2FgPzXqx9wJEGPSOxLkW2a0LfQcFIqa_I--waBtK5yDd0wTK1Z6wCBRzbUtPKHuKkH397DtYIZ1_B1TKfq0ho-jWqO8r',
-  'ftMhDW85TvSxcHD96KsRn1:APA91bFfnsTfhTQOrmGVznqypLa_3K8S2a3giiwd4hUQwxUokP0U_qLen6Uaeztbv_PGb_y-uyoIdQVMc69j2MtHYLC7gBdNDvRI9aO1V3fCBmxgbnuAkTM6koZp0tEaFUutvyCja6jn'
+  'cd-pidgvSniKsDHZDqsMOX:APA91bEyFOt_CclTSBBYJ0XYQbDQcj0Q9DZbLKhCaZpSDmYBXZ07AjOc9Hkc1A58WRFwGKGAQTqbdwGgJSH_Ht-harVbKLLFn1jpimV7fdPEQVFIDRDSmvJyga5cPe99fr5S_VqT9ugB',
+  'eNfXl4uXSRyk-55MRNQxgj:APA91bGXH1Kjo6-lH1l6q1BPYzlMhIY92dGzAgsMHFOCBXhFkygB0iE9NO1cFverKoLX1QluhIZdhLf7mu-FWbQjnj1UWLzpEnlUljtbfIJCXu5xHZiFGJ5NfpktlIVOWsycemBOZtwT',     // wahyu
+  'cedQmx3xTwmDP3WkLyxfhR:APA91bEWSzE1duahtC27w3DyqC3uaynNnPgi_CijqNdg_8FPuyAevlXBHZzaqnxYOY4pWBGMwQ09Nyc398cYnc9SIIpdOxpEJ1cwDw3YCwyh54b7UBkgkFnmiGdPooqL_ATRJtLZQ5su',     // aryo
+  'cb_qopaJRwi_uXug9saQZv:APA91bH3R_3ZIYrrfwNdVVmiknEKejnr4-jH2nQjGmi_-v_R0bJXPVwLu92RJPHV6zLyplDKHFYsbWJrb-qcnwQFRQRL6x7KFZ4zBTtHucVywanAFNjdMCyZQTM2MREIRHo07FTt-8-6'      // mason
 ]
 
 sendPushNotif = async function (message) {
