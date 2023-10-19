@@ -136,13 +136,10 @@ sendPushNotifTo = async function (fcmToken, message) {
     })
 }
 
-let tokens = [
-  'c9uyim3PTTyPC7FM-Eu3P4:APA91bHRBUDXua3UTeqZq8AiIVO2I-aPGIl0VnzSJY-j_Yft2FgPzXqx9wJEGPSOxLkW2a0LfQcFIqa_I--waBtK5yDd0wTK1Z6wCBRzbUtPKHuKkH397DtYIZ1_B1TKfq0ho-jWqO8r',
-  'ftMhDW85TvSxcHD96KsRn1:APA91bFfnsTfhTQOrmGVznqypLa_3K8S2a3giiwd4hUQwxUokP0U_qLen6Uaeztbv_PGb_y-uyoIdQVMc69j2MtHYLC7gBdNDvRI9aO1V3fCBmxgbnuAkTM6koZp0tEaFUutvyCja6jn'
-]
+let tokens = [];
 
 sendPushNotif = async function (message) {
-  debug(message)
+  // debug(message)
   // tokens.forEach(token => {
   //   sendPushNotifTo(token, message)
   // })
